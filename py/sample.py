@@ -114,8 +114,8 @@ def main():
     parser.add_argument('--top_k', type=int, default=40, help='Top-k filtering (0=disabled)')
     parser.add_argument('--rep_penalty', type=float, default=0.0,
                         help='Repetition penalty 0.0=off, 1.15=gentle, 1.3=aggressive')
-    parser.add_argument('--stop_on_newline', action='store_true',
-                        help='Stop generation when newline token is encountered')
+    parser.add_argument('--no_stop_on_newline', action='store_true',
+                        help='Continue past newline instead of stopping (default: stop at newline)')
     parser.add_argument('--corpus', type=str, default=None,
                         help='Path to corpus file (one word per line) for validation marking')
     parser.add_argument('--seed', type=int, default=None, help='Random seed (default: None=random each run)')
@@ -200,9 +200,9 @@ def main():
                 corpus_words = set(word.strip() for word in f.read().strip().split('\n') if word.strip())
             print(f"Loaded corpus: {len(corpus_words)} unique words")
     
-    # Determine newline token ID if requested
+    # Determine newline token ID for stopping (default: stop at newline)
     stop_token_id = None
-    if args.stop_on_newline:
+    if not args.no_stop_on_newline:
         newline_ids = tokenizer.encode('\n')
         if newline_ids:
             stop_token_id = newline_ids[0]
@@ -243,7 +243,7 @@ def main():
         generated_text = tokenizer.decode(y[0].tolist())
         
         # If corpus validation is enabled and we're generating single words
-        if corpus_words is not None and args.stop_on_newline:
+        if corpus_words is not None and not args.no_stop_on_newline:
             word = generated_text.strip()
             if word in corpus_words:
                 generated_text = word + ' *'
