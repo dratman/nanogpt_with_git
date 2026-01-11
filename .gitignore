@@ -32,6 +32,9 @@ Thumbs.db
 *.swp
 *.swo
 
+# Claude Code
+.claude/
+
 # Training output directories
 pt_*/
 pt/
